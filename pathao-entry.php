@@ -1,0 +1,105 @@
+<?php
+
+//////////////////////////////////////////////////////////
+// Sandbox //////////////////////////////////////////////
+
+$base_url = "https://courier-api-sandbox.pathao.com";
+
+$client_id = "7N1aMJQbWm";
+$client_secret = "wRcaibZkUdSNz2EI9ZyuXLlNrnAv0TdPUPXMnD39";
+$username = "test@pathao.com";
+$password = "lovePathao";
+$grant_type = "password";
+
+// END //////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////
+// Production //////////////////////////////////////////////
+
+// $base_url = "https://api-hermes.pathao.com";
+
+// $client_id = "olej0GzbjN";
+// $client_secret = "jjMgo2VTdaS9mzsSXhXli6QTocDRGgS9d7FXoEN3";
+// $username = "rintu.syl.bd@gmail.com";
+// $password = "@Rintupathao2025";
+// $grant_type = "password";
+
+// END //////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////
+// Issue An Access Token /////////////////////////
+
+$endpoint = "/aladdin/api/v1/issue-token";
+
+/*
+
+--------------- POST ---------------
+header-------
+Content-type : application/json
+
+body -------
+client_id = "";
+client_secret = "";
+username = "";
+password = "";
+grant_type = "";
+
+--------------- Response ---------------
+token_type: 
+experies_in:
+access_token:
+refresh_token:
+
+*/
+
+// END //////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////
+// Create Order //////////////////////////////////
+
+$endpoint = "/aladdin/api/v1/orders";
+
+// Header
+/*
+Content-type : application/json
+Authorization: Bearer {access_token}
+*/
+
+// Body
+$store_id = "";
+$merchant_order_id = ""; // optional
+$recipient_name = "";
+$recipient_phone = "";
+$recipient_address = "";
+
+$delivery_type = "";    // 48 normal delivery, 12 demand on delivery
+$item_type = "";        // 1 Documents, 2 Parcel
+$special_instruction = "";
+$item_quantity = "";
+$item_weight = "";
+$item_description = "";
+$amount_to_collect = "";    // 0 For Cash On Delivery
+
+// END /////////////////////////////////////////////
+///////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////
+// Get Short Order Info //////////////////////////////////
+
+$consignment_id = "";
+$endpoint = "/aladdin/api/v1/orders/'.$consignment_id.'/info";
+
+
+
+// END /////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+
+
+?>
