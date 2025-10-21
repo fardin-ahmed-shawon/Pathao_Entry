@@ -8,7 +8,7 @@
 <body>
     
 <h1>PHP Package For Pathao Integration</h1>
-<a href="pathao-entry.php?invoice_no=INV-123"></a>
+<a href="pathao-entry.php?invoice_no=INV-123">Send To Pathao</a>
 
 </body>
 </html>
