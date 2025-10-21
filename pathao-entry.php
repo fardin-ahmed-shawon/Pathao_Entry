@@ -262,6 +262,10 @@ function get_parcel_status($invoice_no = '') {
     // Fetch Consignment ID
     $consignment_id = get_consignment_id($invoice_no);
 
+    if ($consignment_id == "Consignment Not Found!") {
+        return "Not Added!";
+    }
+
     // API Endpoint
     $endpoint = "/aladdin/api/v1/orders/" . $consignment_id . "/info";
     $api_url = $base_url . $endpoint;
@@ -320,6 +324,10 @@ function get_track_parcel_url($invoice_no= '') {
 
     // Fetch Consignment ID
     $consignment_id = get_consignment_id($invoice_no);
+    
+    if ($consignment_id == "Consignment Not Found!") {
+        return "Not Added!";
+    }
 
     $url = 'https://merchant.pathao.com/tracking?consignment_id='.$consignment_id.'';
 
