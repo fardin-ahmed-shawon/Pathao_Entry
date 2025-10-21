@@ -1,7 +1,6 @@
 <?php
-// Database Connection
+// Include Database Connection
 
-//
 
 $invoice_no = $_GET['invoice_no'] ?? '';
 
@@ -41,7 +40,6 @@ $store_id = "107467";
 
 ///////////////////////////////////////////////////
 // Issue An Access Token /////////////////////////
-
 function get_access_token() {
     global $base_url, $client_id, $client_secret, $username, $password, $grant_type;
 
@@ -90,14 +88,12 @@ function get_access_token() {
         return '';
     }
 }
-
 // END //////////////////////////////////////////////
 ////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////
 // Create Consignment/Order /////////////////////
-
 function create_pathao_consignment($invoice_no = '') {
     global $conn, $base_url, $store_id;
 
@@ -129,6 +125,7 @@ function create_pathao_consignment($invoice_no = '') {
     $recipient_address = $data['user_address'];
     $order_amount = $data['total_price'];
     $payment_method = $data['payment_method'];
+    // END
 
     // Start Dummy Data
     // $recipient_name = "Test Name";
@@ -196,14 +193,12 @@ function create_pathao_consignment($invoice_no = '') {
         ];
     }
 }
-
 // END /////////////////////////////////////////////
 ///////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////
 // Save Consignment/Order Response to the database /////////////////////
-
 function save_parcel_info_to_database($response = '') {
     global $conn;
 
@@ -218,9 +213,9 @@ function save_parcel_info_to_database($response = '') {
         $stmt->bind_param("ssi", $invoice_no, $consignment_id, $delivery_fee);
 
         if ($stmt->execute()) {
-            echo "Parcel info saved successfully!";
+            echo "Parcel Successfully Created.";
         } else {
-            echo "Error saving parcel info: " . $stmt->error;
+            echo "Error Creating Parcel: " . $stmt->error;
         }
 
         $stmt->close();
@@ -229,36 +224,13 @@ function save_parcel_info_to_database($response = '') {
     }
 
 }
-
 /////////////////////////////////////////////////////////////////////////
 // End /////////////////////////////////////////////////////////////////
 
 
-// print_r(create_pathao_consignment('inv-1234'));
-
-
-///////////////////////////////////////////////////////////
-// Get Short Order Info //////////////////////////////////
-
-// Header
-/*
-Content-type : application/json
-Authorization: Bearer {access_token}
-*/
-
-// Get Request
-$consignment_id = "";
-$endpoint = "/aladdin/api/v1/orders/'.$consignment_id.'/info";
-
-
-// END /////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////
-// Track Parcel //////////////////////////////
-
-function track_parcel($invoice_no= '') {
+////////////////////////////////////////////////////////
+// Get Parcel/Consignment ID //////////////////////////
+function get_consignment_id($invoice_no = '') {
     global $conn;
 
     // Fetch Consignment ID
@@ -266,18 +238,97 @@ function track_parcel($invoice_no= '') {
     $result = mysqli_query($conn, $sql);
     
     if (!$result || mysqli_num_rows($result) == 0) {
-        return "Parcel Not Found!";
+        return "Consignment Not Found!";
     }
 
     $data = mysqli_fetch_assoc($result);
     $consignment_id = $data['consignment_id'];
 
+    return $consignment_id;
+}
+// END //////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+// Get Parcel Status //////////////////////////////////
+function get_parcel_status($invoice_no = '') {
+    global $base_url;
+
+    if (empty($invoice_no)) {
+        return "Invoice number missing!";
+    }
+
+    // Fetch Consignment ID
+    $consignment_id = get_consignment_id($invoice_no);
+
+    // API Endpoint
+    $endpoint = "/aladdin/api/v1/orders/" . $consignment_id . "/info";
+    $api_url = $base_url . $endpoint;
+
+    // Get Access Token
+    $access_token = get_access_token();
+    if (empty($access_token)) {
+        return "Access token not found!";
+    }
+
+    // Initialize cURL
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $api_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $access_token
+    ]);
+
+    // Execute GET Request
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if (curl_errno($ch)) {
+        $error_msg = curl_error($ch);
+        curl_close($ch);
+        return "cURL Error: " . $error_msg;
+    }
+
+    curl_close($ch);
+
+    // Decode JSON
+    $decoded = json_decode($response, true);
+
+    if ($http_code !== 200 || empty($decoded['data'])) {
+        return [
+            "status" => "error",
+            "http_code" => $http_code,
+            "response" => $decoded
+        ];
+    }
+
+    // Extract useful info
+    $info = $decoded['data'];
+    $order_status = $info['order_status'] ?? '';
+
+    return $order_status;
+}
+// END //////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////
+// Track Parcel //////////////////////////////
+function get_track_parcel_url($invoice_no= '') {
+
+    // Fetch Consignment ID
+    $consignment_id = get_consignment_id($invoice_no);
+
     $url = 'https://merchant.pathao.com/tracking?consignment_id='.$consignment_id.'';
 
     return $url;
 }
-
 //////////////////////////////////////////
 // End //////////////////////////////////
+
+
+print_r(create_pathao_consignment($invoice_no));
 
 ?>
